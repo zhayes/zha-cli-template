@@ -4,20 +4,19 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
+const HappyPack = require('happypack');
+const os = require('os');
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
+
+
 module.exports = merge(common, {
     mode: 'development',
     entry: ['react-hot-loader/patch', './src/main'],
     module: {
         rules: [
             {
-                test: /\.tsx|ts$/,
-                use: 'ts-loader',
-                exclude: '/node_modules/',
-                include: path.resolve(__dirname, '../src'),
-            },
-            {
-                test: /\.(js|jsx)$/,
-                use: 'babel-loader',
+                test: /\.(js|jsx|ts|tsx)$/,
+                use: 'happypack/loader?id=babel',
                 exclude: /node_modules/,
                 include: path.resolve(__dirname, '../src')
             },
@@ -35,9 +34,9 @@ module.exports = merge(common, {
                 exclude: path.resolve(__dirname, '../src'),
                 use: [
                     {
-                        loader:'style-loader',
-                        options: { 
-                            esModule: true 
+                        loader: 'style-loader',
+                        options: {
+                            esModule: true
                         }
                     },
                     'css-loader',
@@ -52,46 +51,69 @@ module.exports = merge(common, {
             {
                 test: /\.(less|css)$/,
                 include: path.resolve(__dirname, '../src'),
-                use: [
-                    {
-                        loader:'style-loader',
-                        options: { 
-                            esModule: true 
-                        }
-                    },
-                    {
-                        loader: 'css-loader',
-                        options: { 
-                            modules: {
-                                localIdentName: '[name]__[local]--[hash:base64:5]'
-                            },
-                        }
-                    },
-                    'postcss-loader',
-                    {
-                        loader: 'less-loader',
-                        options: {
-                            javascriptEnabled: true
-                        }
-                    }
-                ]
+                use: "happypack/loader?id=style"
             },
             {
                 test: /\.(png|jpg|gif|jpeg)$/,
                 use: [
-                  {
-                    loader: 'url-loader',
-                    options: {
-                      limit: 8192,
-                      name: '[name].[contentHash].[ext]'
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8192,
+                            name: '[name].[contentHash].[ext]'
+                        },
                     },
-                  },
                 ],
-              },
+            },
         ]
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
+        new HappyPack({
+            id: 'babel',
+            loaders: [
+                {
+                    loader: 'babel-loader',
+                    options: {
+                        cacheDirectory: true
+                    }
+                },
+                {
+                    loader: 'ts-loader',
+                    options:{
+                        happyPackMode: true
+                    }
+                }
+            ],
+            threadPool: happyThreadPool
+        }),
+        new HappyPack({
+            id: 'style',
+            loaders: [
+                {
+                    loader: 'style-loader',
+                    options: {
+                        esModule: true
+                    }
+                },
+                {
+                    loader: 'css-loader',
+                    options: {
+                        modules: {
+                            localIdentName: '[local]--[chunkhash:base64:5]'
+                        },
+                    }
+                },
+                'postcss-loader',
+                {
+                    loader: 'less-loader',
+                    options: {
+                        javascriptEnabled: true
+                    }
+                }
+            ],
+            threadPool: happyThreadPool
+        }),
         new webpack.DefinePlugin({
             BASE_URL: JSON.stringify('http://dev-xxx')
         }),

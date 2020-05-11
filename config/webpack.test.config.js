@@ -15,7 +15,7 @@ module.exports = merge(common, {
     mode: 'production',
     entry: {
         app: './src/main',
-        framework: ['react', 'react-dom']
+        framework: ['react', 'react-dom', 'react-router-dom']
     },
     output: {
         filename: 'js/[name].[chunkhash:10].bundle.js',
