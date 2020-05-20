@@ -8,7 +8,7 @@ import { connectRouter } from 'connected-react-router';
 export const persistConfig = {
   key: '__info__',
   storage: storage,
-  whitelist: ['loginInfo']
+  whitelist: ['loginInfo', 'lastFetchedTime']
 };
 
 

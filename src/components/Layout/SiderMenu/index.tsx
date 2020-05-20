@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import {withRouter, matchPath} from 'react-router';
-const Style = require('./index.less');
+import Style from './index.less';
 
 const { Sider } = Layout;
 

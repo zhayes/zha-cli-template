@@ -18,7 +18,7 @@ module.exports = merge(common, {
         framework: ['react', 'react-dom', 'react-router-dom']
     },
     output: {
-        filename: 'js/[name].[chunkhash:10].bundle.js',
+        filename: 'js/[name].[chunkHash:10].bundle.js',
     },
     optimization: {
         minimizer: [

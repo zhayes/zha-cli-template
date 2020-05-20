@@ -100,7 +100,7 @@ module.exports = merge(common, {
                     loader: 'css-loader',
                     options: {
                         modules: {
-                            localIdentName: '[local]--[chunkhash:base64:5]'
+                            localIdentName: '[local]--[contentHash:base64:5]'
                         },
                     }
                 },

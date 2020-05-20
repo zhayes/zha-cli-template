@@ -1,13 +1,17 @@
 import axios, { Canceler, AxiosInstance, AxiosResponse } from 'axios';
-import { FETCH_CODEURL, INIT_STATE } from '~reducers/common'
+import { FETCH_CODEURL, INIT_STATE, FETCH_REFRESH_TOKEN, SAVE_LAST_FETCHED_TIME } from '~reducers/common';
 import { message } from 'antd';
 const appKey = "xxx";
 import { store } from '~store';
 import { push } from 'connected-react-router';
+import { dispatchWithPromise } from '~utils/util';
 
 const cancelToken = axios.CancelToken;
 
 const baseURL = BASE_URL;
+
+//token最长有效时效两个小时，单位秒
+const maxExpiresIn = 2 * 3600;
 
 //过滤特定的接口地址，以下路径不进入重复取消队列
 const API_whiteList: [string?] = [
@@ -21,8 +25,16 @@ const specifyCodeHandles: any = {
     10006: function () {
         store.dispatch({ type: INIT_STATE });
         store.dispatch(push('/login'));
+    },
+    10003: function () {
+        store.dispatch({ type: INIT_STATE });
+        store.dispatch(push('/login'));
     }
 }
+//特定接口不需要走刷新token接口时机判断
+const specifyApiInOutOfRefreshingCode = [
+    '/mgt/gov/user/refresh-token'
+]
 
 
 export default class AxiosRequest {
@@ -46,7 +58,7 @@ export default class AxiosRequest {
     pendingList: { u: string, f: Canceler }[] = [];
 
 
-    commonRequest = (req: any) => {//定义请求报文
+    commonRequest = async (req: any) => {//定义请求报文
         this.removePending(req);
         req.cancelToken = new cancelToken((c) => {
             if (API_whiteList.indexOf(req.url) == -1) {
@@ -55,14 +67,35 @@ export default class AxiosRequest {
         });
 
         const state = store.getState();
-        const { loginInfo } = state.common || {};
-        const { tokenType, accessToken } = loginInfo || {};
+        const { loginInfo, lastFetchedTime } = state.common || {};
+        const { tokenType, accessToken, refreshToken } = loginInfo || {};
 
         req.headers.Authorization = `${tokenType} ${accessToken}`;
+
+        if (lastFetchedTime && loginInfo) {
+            const currentTime = new Date().getTime() / 1000;
+            const expiresIn = loginInfo.expiresIn;
+            
+            if (!specifyApiInOutOfRefreshingCode.includes(req.url)) {
+                if (currentTime - (lastFetchedTime / 1000) >= maxExpiresIn) {//超出token保存的最大有效时效就登出
+                    store.dispatch({ type: INIT_STATE });
+                    store.dispatch(push('/login'));
+                } else if (currentTime - (lastFetchedTime / 1000) >= expiresIn) {//达到过期时效就刷新当前token
+                    const result = await dispatchWithPromise({ type: FETCH_REFRESH_TOKEN, payload: { refreshToken } });
+                    const { tokenType, accessToken } = result;
+                    req.headers.Authorization = `${tokenType} ${accessToken}`;
+                }
+            }
+
+        }
+
 
         if (!req.data) req.data = {};
         req.data.appkey = appKey;
         req.data.timestamp = new Date().getTime();
+
+        store.dispatch({ type: SAVE_LAST_FETCHED_TIME, data: new Date().getTime() });
+
         return req;
     }
 

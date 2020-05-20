@@ -13,7 +13,11 @@ export const UPDATE_PASSWORD = Symbol('UPDATE_PASSWORD');
 export const FETCH_PERMISSIONS = Symbol('FETCH_PERMISSIONS');
 export const SAVE_PERMISSIONS = Symbol('SAVE_PERMISSIONS');
 
-export const INIT_STATE = Symbol('SAVE_NEWS_SOURCE_TAGS')
+export const INIT_STATE = Symbol('SAVE_NEWS_SOURCE_TAGS');
+
+export const FETCH_REFRESH_TOKEN = Symbol('FETCH_REFRESH_TOKEN');
+
+export const SAVE_LAST_FETCHED_TIME = Symbol('SAVE_LAST_FETCHED_TIME');
 
 const initState = {
   sideMenu: [],
@@ -51,6 +55,11 @@ const common = (state = initState, action:Action) => {
     case INIT_STATE:
       return {
         ...initState
+      }
+    case SAVE_LAST_FETCHED_TIME:
+      return {
+        ...state,
+        lastFetchedTime: action.data
       }
     default:
       return state

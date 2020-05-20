@@ -9,8 +9,14 @@ interface DownloadFunc{
 }
 export const download:DownloadFunc
 
+interface DispatchWithPromiseFuncArgs{
+    type:any
+    payload?:any
+    data?:any
+}
+
 interface DispatchWithPromiseFunc{
-    (type:any, payload?:any, data?:any):Promise<any>
+    (args:DispatchWithPromiseFuncArgs):Promise<any>
 }
 
 export const dispatchWithPromise:DispatchWithPromiseFunc

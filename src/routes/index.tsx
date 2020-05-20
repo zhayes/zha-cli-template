@@ -7,7 +7,7 @@ export const routeData = routes;
 
 export default () => {
   return (
-    <Suspense fallback={<Spin size="large" />}>
+    <Suspense fallback={<Spin size="large"><div></div></Spin>}>
       <Switch>
         {
           routeData.map((route: any, i) => {
