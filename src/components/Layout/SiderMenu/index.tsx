@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import {connect} from 'react-redux';
-import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import {withRouter, matchPath} from 'react-router';
 import Style from './index.less';
@@ -35,6 +34,10 @@ function SiderMenu(props:any){
                     setParentSelectedKeys(parentKeys);
                     setSelectedKeys(selectedKey);
                     break;
+                }else{
+                    if(i+1===data.length){
+                        parentKeys = [];
+                    }
                 }
             }
         }
@@ -77,6 +80,7 @@ function SiderMenu(props:any){
                 return (
                     <Menu.SubMenu
                         key={menu.selected}
+                        icon={menu.icon}
                         title={
                             <span>{menu.title}</span>
                         }
@@ -91,10 +95,10 @@ function SiderMenu(props:any){
             return (
                 <Menu.Item 
                     key={menu.selected}
+                    icon={menu.icon}
                 >
                     <Link to={menu.path as string}>
-                        <UserOutlined />
-                        <span>{menu.title}</span>
+                        {menu.title}
                     </Link>
                 </Menu.Item>
             )
