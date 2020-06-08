@@ -8,7 +8,7 @@ import { dispatchWithPromise } from '~utils/util';
 
 const cancelToken = axios.CancelToken;
 
-const baseURL = BASE_URL;
+export const baseURL = BASE_URL;
 
 //token最长有效时效两个小时，单位秒
 const maxExpiresIn = 2 * 3600;
